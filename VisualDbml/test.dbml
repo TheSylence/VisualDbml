@@ -1,0 +1,63 @@
+// Simple comment
+project ChoreGuru {
+  database_type: 'MariaSQL'
+}
+
+tablegroup groupname {
+table1
+table2
+}
+
+ref {
+    Users.(id, name) - UserSettings.(theme, lang)
+}
+
+ref {
+    Users.id < UserSettings.userId [update: set null]
+}
+
+ref test {
+    UserSettings.userId > Users.id [delete: restrict]
+}
+
+ref: Users.name - usercfg.theme [delete: cascade, update: restrict]
+ref: Users.name - usercfg.theme
+
+table Users { // suffix comment
+  id guid [pk]
+  name varchar(50) [unique, not null]
+  email varchar(255) [unique, not null]
+  state UserState [ref: - Users.id]
+  createdAt datetime
+}
+
+table UserSettings as usrcfg {
+  userId guid [ref: - Users.id]
+  theme varchar(10)
+  language varchar(5)
+  
+  indexes {
+    theme [type: hash]
+    (userId, theme) [pk]
+    createdAt [name: 'created_at_index']
+    language
+  }
+}
+
+/* Multiline single */
+table UserProfiles {
+  id guid [pk, ref: - Users.id]
+  firstName string
+  lastName string
+  country string
+  /*
+  test
+  */
+  location string
+}
+
+enum UserState {
+  created
+  activated
+  closed
+}

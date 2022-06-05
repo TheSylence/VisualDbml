@@ -1,0 +1,46 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:VisualDbml.ViewModels"
+        xmlns:avalonEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="VisualDbml.Views.MainWindow" WindowStartupLocation="CenterScreen"
+        d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="{Binding WindowTitle}">
+
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+N" Command="{Binding NewCommand}" />
+        <KeyBinding Gesture="Ctrl+O" Command="{Binding OpenCommand}" />
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}" />
+        <KeyBinding Gesture="Ctrl+Shift+S" Command="{Binding SaveAsCommand}" />
+        <KeyBinding Gesture="Ctrl+Q" Command="{Binding QuitCommand}" />
+    </Window.KeyBindings>
+
+    <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*,Auto,3*">
+
+        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+            <MenuItem Header="File">
+                <MenuItem Header="New" InputGesture="Ctrl+N" Command="{Binding NewCommand}" />
+                <MenuItem Header="Open" InputGesture="Ctrl+O" Command="{Binding OpenCommand}" />
+                <Separator />
+                <MenuItem Header="Save" InputGesture="Ctrl+S" Command="{Binding SaveCommand}" />
+                <MenuItem Header="Save as" InputGesture="Ctrl+Shift+S" Command="{Binding SaveAsCommand}" />
+                <Separator />
+                <MenuItem Header="Exit" InputGesture="Ctrl+Q" Command="{Binding QuitCommand}" />
+            </MenuItem>
+        </Menu>
+
+        <avalonEdit:TextEditor Grid.Column="0" Grid.Row="1" Name="Editor"
+                               FontFamily="Cascadia Code" IsModified="{Binding IsModified, Mode=TwoWay}"
+                               ShowLineNumbers="True"
+                               HorizontalScrollBarVisibility="Auto" Document="{Binding Document}"
+                               VerticalScrollBarVisibility="Visible" />
+        <GridSplitter Grid.Row="1" Grid.Column="1" ResizeBehavior="PreviousAndNext" ResizeDirection="Columns" />
+
+        <Svg Grid.Row="1" Grid.Column="2" Path="{Binding Graph}" />
+        <!--<Image Grid.Row="1" Grid.Column="2" Source="{SvgImage Graph}"  />-->
+    </Grid>
+
+</Window>
