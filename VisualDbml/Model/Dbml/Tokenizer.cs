@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace VisualDbml.Model;
+namespace VisualDbml.Model.Dbml;
 
 internal static class Tokenizer
 {

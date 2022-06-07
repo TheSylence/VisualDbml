@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace VisualDbml.Model;
+namespace VisualDbml.Model.Dbml;
 
 internal record DbmlModel
 {

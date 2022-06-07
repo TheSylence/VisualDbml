@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using GraphVizNet;
+using VisualDbml.Model.Dbml;
 
 namespace VisualDbml.Model.Graph;
 
@@ -12,6 +13,10 @@ internal class GraphGenerator
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine("digraph dbml {");
+		sb.AppendLine("bgcolor=\"#44444c\"");
+		sb.AppendLine("edge[color=\"#9899A1\"]");
+		sb.AppendLine("node[fontcolor=\"#AAAAAA\",color=\"#222222\"]");
+		
 		foreach (var table in model.Tables)
 		{
 			AppendTable(table, sb);
@@ -41,6 +46,7 @@ internal class GraphGenerator
 	{
 		sb.Append($"subgraph cluster_{tableGroup.Name} ");
 		sb.AppendLine("{");
+		sb.AppendLine("color=\"#222222\"");
 		sb.AppendLine(string.Join(";", tableGroup.Tables));
 		sb.AppendLine("}");
 	}
@@ -51,25 +57,7 @@ internal class GraphGenerator
 		sb.Append(" -> ");
 		sb.Append($"{relationship.TargetTable}:{relationship.TargetColumns[0]}");
 
-		var options = new List<string>();
-		
-		if (relationship.Type is RelationshipType.OneToOne or RelationshipType.ManyToMany)
-			options.Add("dir=both");
-		
-		if( relationship.Type is RelationshipType.OneToOne or RelationshipType.ManyToOne )
-			options.Add("arrowhead=box");
-		
-		if( relationship.Type is RelationshipType.OneToMany or RelationshipType.OneToOne )
-			options.Add("arrowtail=box");
-
-		if (options.Any())
-		{
-			sb.Append(" [");
-			sb.Append(string.Join(',', options));
-			sb.Append(']');
-		}
-
-		sb.AppendLine(";");
+		sb.AppendLine(" [dir=none];");
 	}
 
 	void AppendEnum(EnumType enumType, StringBuilder sb)
@@ -90,12 +78,12 @@ internal class GraphGenerator
 	{
 		sb.AppendLine($"{table.Name} [");
 		sb.AppendLine("shape=plain");
-		sb.AppendLine("label=<<table border='1' cellborder='0'>");
+		sb.AppendLine("label=<<table border='1' cellborder='0' bgcolor='#37383F' cellspacing='0'>");
 		var displayName = table.Name;
 		if (!string.IsNullOrEmpty(table.Alias))
 			displayName += $" ({table.Alias})";
 		
-		sb.AppendLine($"<tr><td colspan='2'>{displayName}</td></tr>");
+		sb.AppendLine($"<tr><td colspan='2' bgcolor='#222222'>{displayName}</td></tr>");
 		foreach (var column in table.Columns)
 		{
 			sb.Append($"<tr><td port='{column.Name}' align='left'>");

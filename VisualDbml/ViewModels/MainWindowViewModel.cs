@@ -11,10 +11,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using AvaloniaEdit.Document;
 using DynamicData.Binding;
 using ReactiveUI;
-using Svg;
-using VisualDbml.Model;
+using VisualDbml.Model.Dbml;
 using VisualDbml.Model.Graph;
-using SvgImage = Avalonia.Svg.Skia.SvgImage;
 
 namespace VisualDbml.ViewModels;
 
@@ -36,11 +34,14 @@ public class MainWindowViewModel : ViewModelBase
 			WindowTitle = $"{Document.FileName}{(string?)(IsModified ? "*" : "")} - VisualDBML";
 		});
 
-		New().ContinueWith(_ => { });
+		var documentChanged = Observable.FromEventPattern(Document, nameof(Document.Changed));
+		documentChanged
+			.Select(evt => (evt.Sender as TextDocument)?.Text)
+			.Where(str => !string.IsNullOrEmpty(str))
+			.Throttle(TimeSpan.FromMilliseconds(500))
+			.Subscribe(DocumentOnTextChanged!);
 
-		Document.Changed += DocumentOnTextChanged;
-		//Document.TextChanged += DocumentOnTextChanged;
-		OpenFile(@"E:\dev\Web\choreguru\Docs\database.dbml").ContinueWith(_ => { });
+		New().ContinueWith(_ => { });
 	}
 
 	public TextDocument Document { get; } = new();
@@ -71,14 +72,17 @@ public class MainWindowViewModel : ViewModelBase
 
 	private Task<bool> CheckForUnsavedChanges() => Task.FromResult(true);
 
-	private void DocumentOnTextChanged(object? sender, EventArgs e)
+	private void DocumentOnTextChanged(string text)
 	{
+		if (File.Exists(Graph))
+			File.Delete(Graph);
+
 		try
 		{
-			var model = _dbmlParser.Parse(Document.Text);
+			var model = _dbmlParser.Parse(text);
 			if (model == null)
 				return;
-			
+
 			Graph = _graphGenerator.CreateGraph(model);
 		}
 		catch

@@ -7,7 +7,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="VisualDbml.Views.MainWindow" WindowStartupLocation="CenterScreen"
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/avalonia-logo.ico" Background="#44444c"
         Title="{Binding WindowTitle}">
 
     <Window.KeyBindings>
@@ -34,13 +34,12 @@
 
         <avalonEdit:TextEditor Grid.Column="0" Grid.Row="1" Name="Editor"
                                FontFamily="Cascadia Code" IsModified="{Binding IsModified, Mode=TwoWay}"
-                               ShowLineNumbers="True"
+                               ShowLineNumbers="True" Background="#282828"
                                HorizontalScrollBarVisibility="Auto" Document="{Binding Document}"
                                VerticalScrollBarVisibility="Visible" />
         <GridSplitter Grid.Row="1" Grid.Column="1" ResizeBehavior="PreviousAndNext" ResizeDirection="Columns" />
 
         <Svg Grid.Row="1" Grid.Column="2" Path="{Binding Graph}" />
-        <!--<Image Grid.Row="1" Grid.Column="2" Source="{SvgImage Graph}"  />-->
     </Grid>
 
 </Window>

@@ -23,4 +23,8 @@
 	<ItemGroup>
 	  <Folder Include="Controls" />
 	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="Data\dbml.tmLanguage.json" />
+	  <EmbeddedResource Include="Data\dbml.tmLanguage.json" />
+	</ItemGroup>
 </Project>

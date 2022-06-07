@@ -1,4 +1,4 @@
-﻿namespace VisualDbml.Model;
+﻿namespace VisualDbml.Model.Dbml;
 
 internal enum RelationshipSetting
 {
