@@ -8,6 +8,7 @@
         x:Class="VisualDbml.Views.MainWindow" WindowStartupLocation="CenterScreen"
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
         Icon="/Assets/avalonia-logo.ico" Background="#44444c"
+        x:Name="Window"
         Title="{Binding WindowTitle}">
 
     <Window.KeyBindings>
@@ -24,6 +25,15 @@
             <MenuItem Header="File">
                 <MenuItem Header="New" InputGesture="Ctrl+N" Command="{Binding NewCommand}" />
                 <MenuItem Header="Open" InputGesture="Ctrl+O" Command="{Binding OpenCommand}" />
+                <MenuItem Items="{Binding RecentlyUsedFiles}" Header="Open Recent">
+                    <MenuItem.Styles>
+                        <Style Selector="MenuItem" d:DataContext="{d:DesignInstance vm:RecentlyUsedViewModel}">
+                            <Setter Property="Header" Value="{Binding FileName}"></Setter>
+                            <Setter Property="CommandParameter" Value="{Binding FilePath}"></Setter>
+                            <Setter Property="Command" Value="{Binding DataContext.OpenRecentlyUsedFileCommand, ElementName=Window}"></Setter>
+                        </Style>
+                    </MenuItem.Styles>
+                </MenuItem>
                 <Separator />
                 <MenuItem Header="Save" InputGesture="Ctrl+S" Command="{Binding SaveCommand}" />
                 <MenuItem Header="Save as" InputGesture="Ctrl+Shift+S" Command="{Binding SaveAsCommand}" />
