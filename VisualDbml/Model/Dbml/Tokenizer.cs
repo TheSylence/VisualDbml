@@ -9,7 +9,8 @@ internal static class Tokenizer
 	public static IEnumerable<Token> Tokenize(string content)
 	{
 		var parts = content.Split(new[] { " ", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-		var merged = MergeSettingTokens(parts);
+		var merged = MergeStrings(parts);
+		merged = MergeSettingTokens(merged);
 		merged = MergeCompositeColumns(merged);
 
 		return GenerateTokens(merged);
@@ -34,7 +35,7 @@ internal static class Tokenizer
 		}
 
 		var next = "";
-		while ( tokens.Any() && (next = tokens.Dequeue()) != "{")
+		while (tokens.Any() && (next = tokens.Dequeue()) != "{")
 		{
 			group.Enqueue(next);
 		}
@@ -70,6 +71,41 @@ internal static class Tokenizer
 		}
 	}
 
+	private static IEnumerable<string> Merge(IEnumerable<string> tokens, Func<string, bool> isOpen,
+		Func<string, bool> isClose)
+	{
+		var tokenBuffer = new List<string>();
+		var inClass = false;
+
+		foreach (var token in tokens)
+		{
+			if (inClass)
+			{
+				tokenBuffer.Add(token);
+
+				if (isClose(token))
+				{
+					var merged = string.Join(" ", tokenBuffer);
+					tokenBuffer.Clear();
+					yield return merged;
+					inClass = false;
+				}
+			}
+			else if (isOpen(token))
+			{
+				if (!isClose(token))
+				{
+					inClass = true;
+					tokenBuffer.Add(token);
+				}
+				else
+					yield return token;
+			}
+			else
+				yield return token;
+		}
+	}
+
 	private static IEnumerable<string> MergeCompositeColumns(IEnumerable<string> tokens)
 	{
 		var inComposite = false;
@@ -99,66 +135,25 @@ internal static class Tokenizer
 		}
 	}
 
-	private static IEnumerable<string> MergeSettingTokens(IEnumerable<string> tokens)
-	{
-		var tokenBuffer = new List<string>();
-		var inSettings = false;
+	private static IEnumerable<string> MergeSettingTokens(IEnumerable<string> tokens) =>
+		Merge(tokens, token => token.StartsWith('['), token => token.EndsWith(']'));
 
-		foreach (var token in tokens)
-		{
-			if (inSettings)
-			{
-				tokenBuffer.Add(token);
-
-				if (token.EndsWith("]"))
-				{
-					var merged = string.Join(" ", tokenBuffer);
-					tokenBuffer.Clear();
-					yield return merged;
-					inSettings = false;
-				}
-			}
-			else if (token.StartsWith("["))
-			{
-				if (!token.EndsWith("]"))
-				{
-					inSettings = true;
-					tokenBuffer.Add(token);
-				}
-				else
-					yield return token;
-			}
-			else
-				yield return token;
-		}
-	}
-
-	private static IEnumerable<Token> TokenizeTableGroup(Queue<string> tokens)
-	{
-		yield return new Token(tokens.Dequeue(), TokenType.Name);
-		yield return new Token(tokens.Dequeue(), TokenType.GroupingStart);
-		
-		while ( tokens.Peek() != "}")
-		{
-			yield return new Token(tokens.Dequeue(), TokenType.Name);
-		}
-
-		yield return new Token(tokens.Dequeue(), TokenType.GroupingEnd);
-	}
+	private static IEnumerable<string> MergeStrings(IEnumerable<string> tokens) =>
+		Merge(tokens, token => token.StartsWith('"'), token => token.EndsWith('"'));
 
 	private static IEnumerable<Token> TokenizeEnum(Queue<string> tokens)
 	{
 		yield return new Token(tokens.Dequeue(), TokenType.Name);
 		yield return new Token(tokens.Dequeue(), TokenType.GroupingStart);
 
-		while ( tokens.Peek() != "}")
+		while (tokens.Peek() != "}")
 		{
 			yield return new Token(tokens.Dequeue(), TokenType.EnumMember);
 		}
 
 		yield return new Token(tokens.Dequeue(), TokenType.GroupingEnd);
 	}
-	
+
 	private static IEnumerable<Token> TokenizeGroup(Queue<string> groupTokens, string groupType)
 	{
 		var groupStarted = false;
@@ -272,7 +267,8 @@ internal static class Tokenizer
 
 				yield return new Token("]", TokenType.SettingsEnd);
 			}
-			else if (tokens.Peek() == "}")
+
+			if (tokens.Peek() == "}")
 				yield return new Token(tokens.Dequeue(), TokenType.GroupingEnd);
 		}
 	}
@@ -378,6 +374,19 @@ internal static class Tokenizer
 		yield return new Token(nameTokens.First(), TokenType.Name);
 		if (hasAlias)
 			yield return new Token(nameTokens.Last(), TokenType.Alias);
+	}
+
+	private static IEnumerable<Token> TokenizeTableGroup(Queue<string> tokens)
+	{
+		yield return new Token(tokens.Dequeue(), TokenType.Name);
+		yield return new Token(tokens.Dequeue(), TokenType.GroupingStart);
+
+		while (tokens.Peek() != "}")
+		{
+			yield return new Token(tokens.Dequeue(), TokenType.Name);
+		}
+
+		yield return new Token(tokens.Dequeue(), TokenType.GroupingEnd);
 	}
 
 	private static readonly string[] KeywordList =

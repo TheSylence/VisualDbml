@@ -13,6 +13,9 @@ internal class GraphGenerator
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine("digraph dbml {");
+		sb.AppendLine("layout=\"fdp\"");
+		sb.AppendLine("overlap=false");
+		sb.AppendLine("splines=ortho");
 		sb.AppendLine("bgcolor=\"#44444c\"");
 		sb.AppendLine("edge[color=\"#9899A1\"]");
 		sb.AppendLine("node[fontcolor=\"#AAAAAA\",color=\"#222222\"]");
@@ -53,9 +56,11 @@ internal class GraphGenerator
 
 	private void AppendRelationship(Relationship relationship, StringBuilder sb)
 	{
-		sb.Append($"{relationship.SourceTable}:{relationship.SourceColumns[0]}");
+		//sb.Append($"{relationship.SourceTable}:{relationship.SourceColumns[0]}");
+		sb.Append($"{relationship.SourceTable}");
 		sb.Append(" -> ");
-		sb.Append($"{relationship.TargetTable}:{relationship.TargetColumns[0]}");
+		//sb.Append($"{relationship.TargetTable}:{relationship.TargetColumns[0]}");
+		sb.Append($"{relationship.TargetTable}");
 
 		sb.AppendLine(" [dir=none];");
 	}
