@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
@@ -38,14 +37,11 @@ public class MainWindowViewModel : ViewModelBase
 			UpdateWindowTitle();
 		});
 
-		var documentChanged = Observable.FromEventPattern(Document, nameof(Document.Changed));
+		var documentChanged = Observable.FromEventPattern(this, nameof(DocumentChanged));
 		documentChanged
 			.Select(evt =>
 			{
 				var textDocument = evt.Sender as TextDocument;
-				if (textDocument?.IsInUpdate == true)
-					return null;
-				
 				return textDocument?.Text;
 			})
 			.Where(str => !string.IsNullOrEmpty(str))
@@ -56,6 +52,8 @@ public class MainWindowViewModel : ViewModelBase
 
 		New().ContinueWith(_ => { });
 	}
+	
+	
 
 	private Task OpenRecentlyUsedFile(string filePath)
 	{
@@ -80,10 +78,22 @@ public class MainWindowViewModel : ViewModelBase
 	public TextDocument Document
 	{
 		get => _document;
-		set => this.RaiseAndSetIfChanged(ref _document, value);
+		set
+		{
+			_document.Changed -= OnDocumentChanged;
+			this.RaiseAndSetIfChanged(ref _document, value);
+			_document.Changed += OnDocumentChanged;
+		}
 	}
 
-	public string Graph
+	private void OnDocumentChanged(object? sender, DocumentChangeEventArgs e)
+	{
+		DocumentChanged?.Invoke(sender, e);
+	}
+
+	public event EventHandler<DocumentChangeEventArgs>? DocumentChanged;
+
+	public string? Graph
 	{
 		get => _graph;
 		set => this.RaiseAndSetIfChanged(ref _graph, value);
@@ -142,6 +152,7 @@ public class MainWindowViewModel : ViewModelBase
 			FileName = "Untitled"
 		};
 		IsModified = false;
+		UpdateWindowTitle();
 	}
 
 	private async Task Open()
@@ -184,11 +195,8 @@ public class MainWindowViewModel : ViewModelBase
 			Text = content,
 			FileName = fileName
 		};
-		IsModified = false;
-		UpdateWindowTitle();
 		
-		_recentlyUsedFilesService.AddFile(fileName);
-		PopulateRecentlyUsedFiles();
+		Persist(fileName);
 	}
 
 	private async Task Quit()
@@ -241,20 +249,28 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		var content = Document.Text;
 		Document.FileName = fileName;
-		IsModified = false;
-		UpdateWindowTitle();
 		
 		await File.WriteAllTextAsync(fileName, content);
+		
+		Persist(fileName);
+	}
+
+	private void Persist(string fileName)
+	{
+		IsModified = false;
+		UpdateWindowTitle();
+
 		_recentlyUsedFilesService.AddFile(fileName);
 		PopulateRecentlyUsedFiles();
+		
+		DocumentOnTextChanged(Document.Text);
 	}
 
 	private readonly DbmlParser _dbmlParser = new();
 	private readonly GraphGenerator _graphGenerator = new();
-
 	private string _windowTitle = "";
 	private bool _isModified;
-	private string _graph;
+	private string? _graph;
 	private readonly RecentlyUsedFilesService _recentlyUsedFilesService;
 	private TextDocument _document = new();
 }

@@ -28,9 +28,11 @@
                 <MenuItem Items="{Binding RecentlyUsedFiles}" Header="Open Recent">
                     <MenuItem.Styles>
                         <Style Selector="MenuItem" d:DataContext="{d:DesignInstance vm:RecentlyUsedViewModel}">
-                            <Setter Property="Header" Value="{Binding FileName}"></Setter>
-                            <Setter Property="CommandParameter" Value="{Binding FilePath}"></Setter>
-                            <Setter Property="Command" Value="{Binding DataContext.OpenRecentlyUsedFileCommand, ElementName=Window}"></Setter>
+                            <Setter Property="Header" Value="{Binding FileName}" />
+                            <Setter Property="CommandParameter" Value="{Binding FilePath}" />
+                            <Setter Property="Command"
+                                    Value="{Binding DataContext.OpenRecentlyUsedFileCommand, ElementName=Window}" />
+                            <Setter Property="ToolTip.Tip" Value="{Binding FilePath}" />
                         </Style>
                     </MenuItem.Styles>
                 </MenuItem>
