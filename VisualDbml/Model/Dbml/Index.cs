@@ -2,11 +2,4 @@
 
 namespace VisualDbml.Model.Dbml;
 
-internal record Index
-{
-	public ICollection<string> Columns { get; init; }
-	public string Name { get; init; }
-	public bool PrimaryKey { get; init; }
-	public string Type { get; init; }
-	public bool Unique { get; init; }
-}
+internal record Index(ICollection<string> Columns, bool PrimaryKey, string Name, string Type, bool Unique);

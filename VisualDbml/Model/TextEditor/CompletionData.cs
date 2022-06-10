@@ -14,8 +14,8 @@ internal class CompletionData : ICompletionData
 	}
 
 	public object Content => Text;
-	public object Description => null;
-	public IBitmap Image => null;
+	public object? Description => null;
+	public IBitmap? Image => null;
 	public double Priority => 1.0;
 	public string Text { get; }
 

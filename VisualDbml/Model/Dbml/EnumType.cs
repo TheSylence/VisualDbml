@@ -2,8 +2,4 @@
 
 namespace VisualDbml.Model.Dbml;
 
-internal record EnumType
-{
-	public string Name { get; init; }
-	public ICollection<string> Members { get; init; }
-}
+internal record EnumType(ICollection<string> Members, string Name);

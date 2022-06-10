@@ -27,7 +27,7 @@ internal class DbmlRegistryOptions : IRegistryOptions
 	{
 		using var stream = Assembly.GetExecutingAssembly()
 			.GetManifestResourceStream("VisualDbml.Data.dbml.tmLanguage.json");
-		using var reader = new StreamReader(stream);
+		using var reader = new StreamReader(stream!);
 
 		return GrammarReader.ReadGrammarSync(reader);
 	}

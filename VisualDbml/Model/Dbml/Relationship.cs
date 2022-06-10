@@ -2,13 +2,13 @@
 
 namespace VisualDbml.Model.Dbml;
 
-internal record Relationship
+internal record Relationship(RelationshipType Type, string SourceTable, IList<string> SourceColumns, string TargetTable,
+	IList<string> TargetColumns, RelationshipSetting UpdateSettings, RelationshipSetting DeleteSettings)
 {
-	public RelationshipSetting DeleteSettings { get; init; }
-	public IList<string> SourceColumns { get; init; }
-	public string SourceTable { get; init; }
-	public IList<string> TargetColumns { get; init; }
-	public string TargetTable { get; init; }
-	public RelationshipType Type { get; init; }
-	public RelationshipSetting UpdateSettings { get; init; }
+	public Relationship(RelationshipType type, string targetTable, IList<string> targetColumns,
+		IList<string> sourceColumns, string sourceTable)
+		: this(type, sourceTable, sourceColumns, targetTable, targetColumns, RelationshipSetting.NoAction,
+			RelationshipSetting.NoAction)
+	{
+	}
 }

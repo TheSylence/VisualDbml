@@ -59,13 +59,7 @@ internal class DbmlParser
 			}
 		}
 
-		return new DbmlModel
-		{
-			Tables = tables,
-			Enums = enums,
-			Relationships = relationships,
-			TableGroups = tableGroups
-		};
+		return new DbmlModel(Tables: tables, Enums: enums, Relationships: relationships, TableGroups: tableGroups);
 	}
 
 	private static Column? ParseColumn(Queue<Token> tokens, string tableName, out Relationship? columnRef)
@@ -97,16 +91,8 @@ internal class DbmlParser
 				ParseColumnSettings(tokens, name, tableName);
 		}
 
-		return new Column
-		{
-			Name = name,
-			Type = type,
-			PrimaryKey = primary,
-			Unique = unique,
-			NotNull = notNull,
-			Increment = increment,
-			DefaultValue = defaultValue
-		};
+		return new Column(Name: name, Type: type, PrimaryKey: primary, Unique: unique, NotNull: notNull,
+			Increment: increment, DefaultValue: defaultValue);
 	}
 
 	private static (bool primary, bool notNull, bool increment, bool unique, string? defaultValue, Relationship?)
@@ -145,14 +131,8 @@ internal class DbmlParser
 			var type = ParseRelationshipType(parts[0]);
 			var (table, columns) = ParseComposite(parts[1]);
 
-			columnRef = new Relationship
-			{
-				Type = type,
-				TargetTable = table,
-				TargetColumns = columns,
-				SourceColumns = new[] { columnName },
-				SourceTable = tableName
-			};
+			columnRef = new Relationship(type: type, targetTable: table, targetColumns: columns,
+				sourceColumns: new[] { columnName }, sourceTable: tableName);
 		}
 
 		tokens.Dequeue();
@@ -187,11 +167,7 @@ internal class DbmlParser
 		}
 
 		tokens.Dequeue();
-		return new TableGroup
-		{
-			Tables = tables,
-			Name = name
-		};
+		return new TableGroup(Tables: tables, Name: name);
 	}
 	private static EnumType ParseEnum(Queue<Token> tokens)
 	{
@@ -212,11 +188,7 @@ internal class DbmlParser
 		}
 
 		tokens.Dequeue();
-		return new EnumType
-		{
-			Members = members,
-			Name = name
-		};
+		return new EnumType(Members: members, Name: name);
 	}
 
 	private static IEnumerable<Index> ParseIndexes(Queue<Token> tokens)
@@ -264,14 +236,8 @@ internal class DbmlParser
 				}
 			}
 
-			yield return new Index
-			{
-				Columns = columns.ToList(),
-				PrimaryKey = primaryKey,
-				Name = name,
-				Type = type,
-				Unique = unique
-			};
+			yield return new Index(Columns: columns.ToList(), PrimaryKey: primaryKey, Name: name, Type: type,
+				Unique: unique);
 		}
 	}
 
@@ -326,16 +292,9 @@ internal class DbmlParser
 
 		Debug.Assert(next.Type == TokenType.GroupingEnd);
 
-		return new Relationship
-		{
-			Type = type,
-			SourceTable = sourceTable,
-			SourceColumns = sourceColumns,
-			TargetTable = targetTable,
-			TargetColumns = targetColumns,
-			UpdateSettings = updateSettings,
-			DeleteSettings = deleteSettings
-		};
+		return new Relationship(Type: type, SourceTable: sourceTable, SourceColumns: sourceColumns,
+			TargetTable: targetTable, TargetColumns: targetColumns, UpdateSettings: updateSettings,
+			DeleteSettings: deleteSettings);
 	}
 
 	private static RelationshipSetting ParseRelationshipSettings(string setting)
@@ -410,13 +369,7 @@ internal class DbmlParser
 				return null;
 		}
 
-		return new Table
-		{
-			Alias = alias,
-			Name = name,
-			Columns = columns,
-			Indexes = indexes
-		};
+		return new Table(Alias: alias, Name: name, Columns: columns, Indexes: indexes);
 	}
 
 
