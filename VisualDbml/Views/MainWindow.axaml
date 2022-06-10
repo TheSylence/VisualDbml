@@ -42,6 +42,12 @@
                 <Separator />
                 <MenuItem Header="Exit" InputGesture="Ctrl+Q" Command="{Binding QuitCommand}" />
             </MenuItem>
+            <MenuItem Header="Info">
+                <MenuItem Header="DBML Docs" Command="{x:Static vm:Commands.OpenUrlCommand}"
+                          CommandParameter="https://www.dbml.org/docs" />
+                <MenuItem Header="About" Command="{x:Static vm:Commands.OpenUrlCommand}"
+                          CommandParameter="https://github.com/TheSylence/VisualDbml" />
+            </MenuItem>
         </Menu>
 
         <avalonEdit:TextEditor Grid.Column="0" Grid.Row="1" Name="Editor"
